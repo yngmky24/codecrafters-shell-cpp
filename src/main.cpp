@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <cstdlib>
 
 int main() {
   // Flush after every std::cout / std:cerr
@@ -11,7 +12,7 @@ int main() {
     std::cout << "$ ";
     std::cin >> userInput;
     if (userInput == "exit") {
-      exit;
+      exit(0);
     }
     std::cout << userInput << ": command not found\n";
   }
