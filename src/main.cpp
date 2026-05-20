@@ -10,7 +10,7 @@ int main() {
   std::string userInput {};
   while(1) {
     std::cout << "$ ";
-    std::cin >> userInput;
+    std::getline(std::cin, userInput);
     if (userInput == "exit") {
       exit(0);
     }
