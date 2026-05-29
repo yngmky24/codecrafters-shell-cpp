@@ -11,23 +11,32 @@ int main() {
   std::cerr << std::unitbuf;
 
   // Initialize an object to hold user inputs.
-  std::string userInput {};
+  std::string line {};
+  std::string command {};
   // Loop infinitely until user calls `exit` command.
   while(1) {
     std::cout << "$ ";
-    std::getline(std::cin, userInput);
-    if (userInput == "exit") {
+    std::getline(std::cin, line);
+    std::stringstream ss {line};
+    ss >> command;
+    if (command == "exit") {
       exit(0);
     }
-    else if (userInput.substr(0, 5) == "echo ") {
-      std::cout << userInput.substr(5) << std::endl;
+    else if (command == "echo") {
+      std::string word {};
+      while(ss >> word) {
+        std::cout << word << " ";
+      }
+      std::cout << std::endl;
     }
-    else if (userInput.substr(0, 5) == "type ") {
+    else if (command == "type") {
       bool is_builtin = false;
       // List of builtin commands
       std::string builtin[3] {"echo", "exit", "type"};
+      std::string commandToFind;
+      ss >> commandToFind;
       for(int index = 0; index < builtin->length(); index++) {
-        if (userInput.substr(5) == builtin[index]) {
+        if (commandToFind == builtin[index]) {
           std::cout << builtin[index] << " is a shell builtin" << std::endl;
           is_builtin = true;
           break;
@@ -39,21 +48,21 @@ int main() {
         std::string path;
         while(std::getline(ss_path, path, ':')) {
           std::filesystem::path p{path};
-          std::filesystem::path fullPath = p / userInput.substr(5);          
-          std::filesystem::perms permission {std::filesystem::status(fullPath).permissions()};          
+          std::filesystem::path fullPath = p / commandToFind;
+          std::filesystem::perms permission {std::filesystem::status(fullPath).permissions()};
           if(std::filesystem::exists(fullPath) && (permission & std::filesystem::perms::group_exec) != std::filesystem::perms::none) {
-            std::cout << userInput.substr(5) << " is " << fullPath.string() << std::endl;
+            std::cout << commandToFind << " is " << fullPath.string() << std::endl;
             is_builtin = true;
             break;
-          }          
+          }
         }
         if (!is_builtin) {
-          std::cout << userInput.substr(5) << ": not found" << std::endl;
+          std::cout << line.substr(5) << ": not found" << std::endl;
         }
       }
     }
     else {
-      std::cout << userInput << ": command not found" << std::endl;
+      std::cout << line << ": command not found" << std::endl;
     }
   }
 }
