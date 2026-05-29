@@ -41,7 +41,7 @@ int main() {
           std::filesystem::path p{path};
           std::filesystem::path fullPath = p / userInput.substr(5);
           if(std::filesystem::exists(fullPath)) {
-            std::cout << userInput.substr(5) << "is" << fullPath;
+            std::cout << userInput.substr(5) << " is " << fullPath;
             is_builtin = true;
             break;
           }
