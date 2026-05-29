@@ -46,7 +46,9 @@ int main() {
             break;
           }
         }
-        std::cout << userInput.substr(5) << ": not found" << std::endl;
+        if (!is_builtin) {
+          std::cout << userInput.substr(5) << ": not found" << std::endl;
+        }
       }
     }
     else {
