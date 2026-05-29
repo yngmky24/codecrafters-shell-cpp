@@ -41,12 +41,11 @@ int main() {
         while(std::getline(ss_path, path, ':')) {
           std::filesystem::path p{path};
           std::filesystem::path fullPath = p / userInput.substr(5);
-          if(std::filesystem::exists(fullPath)) {
-            if(access(fullPath, X_OK) == 0) {
-              std::cout << userInput.substr(5) << " is " << fullPath.string() << std::endl;
-              is_builtin = true;
-              break;
-            }
+          std::filesystem::perms permission {std::filesystem::status(fullPath).permissions()};
+          if(std::filesystem::exists(fullPath) && permission != std::filesystem::perms::none) {
+            std::cout << userInput.substr(5) << " is " << fullPath.string() << std::endl;
+            is_builtin = true;
+            break;
           }
         }
         if (!is_builtin) {
