@@ -41,7 +41,7 @@ int main() {
           std::filesystem::path p{path};
           std::filesystem::path fullPath = p / userInput.substr(5);          
           std::filesystem::perms permission {std::filesystem::status(fullPath).permissions()};          
-          if((permission & std::filesystem::perms::group_exec) != std::filesystem::perms::none) {
+          if(std::filesystem::exists(fullPath) && (permission & std::filesystem::perms::group_exec) != std::filesystem::perms::none) {
             std::cout << userInput.substr(5) << " is " << fullPath.string() << std::endl;
             is_builtin = true;
             break;
