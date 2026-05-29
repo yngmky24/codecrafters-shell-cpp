@@ -4,7 +4,6 @@
 #include <cstdlib>
 #include <sstream>
 #include <filesystem>
-#include <unistd.h>
 
 int main() {
   // Flush after every std::cout / std:cerr
@@ -40,13 +39,13 @@ int main() {
         std::string path;
         while(std::getline(ss_path, path, ':')) {
           std::filesystem::path p{path};
-          std::filesystem::path fullPath = p / userInput.substr(5);
-          std::filesystem::perms permission {std::filesystem::status(fullPath).permissions()};
-          if(std::filesystem::exists(fullPath) && permission != std::filesystem::perms::none) {
+          std::filesystem::path fullPath = p / userInput.substr(5);          
+          std::filesystem::perms permission {std::filesystem::status(fullPath).permissions()};          
+          if((permission & std::filesystem::perms::group_exec) != std::filesystem::perms::none) {
             std::cout << userInput.substr(5) << " is " << fullPath.string() << std::endl;
             is_builtin = true;
             break;
-          }
+          }          
         }
         if (!is_builtin) {
           std::cout << userInput.substr(5) << ": not found" << std::endl;
