@@ -70,8 +70,7 @@ int main() {
     else if (command == "cd") {
       std::string destPath {};
       ss >> destPath;
-      fs::path p {destPath};      
-      // Handle absolute paths            
+      fs::path p {destPath};
       // If directory exists, change to that directory
       if (fs::exists(p)) {
         fs::current_path(p);
