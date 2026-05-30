@@ -57,12 +57,38 @@ int main() {
           }
         }
         if (!is_builtin) {
-          std::cout << line.substr(5) << ": not found" << std::endl;
+          std::cout << commandToFind << ": not found" << std::endl;
         }
       }
     }
     else {
-      std::cout << line << ": command not found" << std::endl;
+      bool is_executable {false};
+      // Determine if the given command is an executable
+      std::string path_env = std::getenv("PATH");
+      std::stringstream ss_path(path_env);
+      std::string path;
+      while(std::getline(ss_path, path, ':')) {
+        std::filesystem::path p{path};
+        std::filesystem::path fullPath = p / command;
+        std::filesystem::perms permission {std::filesystem::status(fullPath).permissions()};
+        if (std::filesystem::exists(fullPath) && (permission & std::filesystem::perms::group_exec) != std::filesystem::perms::none) {
+          // Pass any arguments from the command line
+          std::string word {};
+          std::stringstream ss_args {fullPath};
+          while(ss >> word) {
+            ss_args << " " << word;
+          }
+          // Execute the command
+          std::cout << ss_args.str() << std::endl;
+          is_executable = true;
+          break;
+        }
+      }
+
+      // If the given command is non-executable return default message.
+      if (!is_executable) {
+        std::cout << line << ": command not found" << std::endl;
+      }
     }
   }
 }
