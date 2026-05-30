@@ -40,7 +40,7 @@ int main() {
           std::cout << ss_word.str() << std::endl;
           ss_word.clear();
         }
-        else if (!quotes.empty()) {
+        else if (word != "\'" && !quotes.empty()) {
           ss_word << word;
         }
         else if (quotes.empty()) {
