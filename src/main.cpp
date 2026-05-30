@@ -75,7 +75,7 @@ int main() {
           // Pass any arguments from the command line
           std::filesystem::path fullPathArgs {p / ss.str()};          
           std::cout << fullPathArgs.string() << std::endl;
-          return;
+          exit(0);
           // Execute the command
           const char* commandToExecute = fullPathArgs.c_str();          
           // std::system(commandToExecute);
