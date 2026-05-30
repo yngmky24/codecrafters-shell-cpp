@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <sstream>
 #include <filesystem>
+#include <stack>
 namespace fs = std::filesystem;
 
 int main() {
@@ -28,8 +29,23 @@ int main() {
     }
     else if (command == "echo") {
       std::string word {};
+      std::stack<std::string> quotes {};
+      std::stringstream ss_word {};
       while(ss >> word) {
-        std::cout << word << " ";
+        if (word == "\'" && quotes.empty()) { // Opening quote
+          quotes.push(word);
+        }
+        else if (word == "\'" && !quotes.empty()) { // Ending quote
+          quotes.pop();
+          std::cout << ss_word.str() << std::endl;
+          ss_word.clear();
+        }
+        else if (!quotes.empty()) {
+          ss_word << word;
+        }
+        else if (quotes.empty()) {
+          std::cout << word << " ";
+        }
       }
       std::cout << std::endl;
     }
