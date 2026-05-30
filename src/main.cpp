@@ -68,13 +68,16 @@ int main() {
       std::stringstream ss_path(path_env);
       std::string path;
       while(std::getline(ss_path, path, ':')) {
-        std::filesystem::path p{path};
-        std::filesystem::path fullPath = p / command;
+        std::filesystem::path p {path};
+        std::filesystem::path fullPath {p / command};
         std::filesystem::perms permission {std::filesystem::status(fullPath).permissions()};
         if (std::filesystem::exists(fullPath) && (permission & std::filesystem::perms::group_exec) != std::filesystem::perms::none) {
           // Pass any arguments from the command line
-          std::cout << p.string() << '/' << ss.str() << std::endl;
+          std::stringstream fullPathArgs {};
+          fullPathArgs << p.string() << '/' << ss.str();
           // Execute the command
+          const char* commandToExecute = fullPath.c_str();
+          std::system(commandToExecute);
           is_executable = true;
           break;
         }
