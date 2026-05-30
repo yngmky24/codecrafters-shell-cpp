@@ -76,11 +76,12 @@ int main() {
           std::string word {};
           std::stringstream ss_args {fullPath};
           std::cout << "1: " << ss_args.str() << std::endl;
-          while(ss >> word) {
-            ss_args << " " << word;
-          }
+          std::cout << "3: " << ss.str() << std::endl;
+          // while(ss >> word) {
+          //   ss_args << " " << word;
+          // }
           // Execute the command
-          std::cout << "2: " << ss_args.str() << std::endl;
+          // std::cout << "2: " << ss_args.str() << std::endl;
           is_executable = true;
           break;
         }
