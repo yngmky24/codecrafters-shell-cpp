@@ -74,7 +74,6 @@ int main() {
         if (std::filesystem::exists(fullPath) && (permission & std::filesystem::perms::group_exec) != std::filesystem::perms::none) {
           // Pass any arguments from the command line
           std::filesystem::path fullPathArgs {p / ss.str()};          
-          std::cout << fullPathArgs.string() << std::endl;
           // Execute the command
           const char* commandToExecute {fullPathArgs.c_str()};
           std::system(commandToExecute);
