@@ -73,15 +73,8 @@ int main() {
         std::filesystem::perms permission {std::filesystem::status(fullPath).permissions()};
         if (std::filesystem::exists(fullPath) && (permission & std::filesystem::perms::group_exec) != std::filesystem::perms::none) {
           // Pass any arguments from the command line
-          std::string word {};
-          std::stringstream ss_args {fullPath};
-          std::cout << "1: " << ss_args.str() << std::endl;
-          std::cout << "3: " << ss.str() << std::endl;
-          // while(ss >> word) {
-          //   ss_args << " " << word;
-          // }
+          std::cout << p.string() << '/' << ss.str() << std::endl;
           // Execute the command
-          // std::cout << "2: " << ss_args.str() << std::endl;
           is_executable = true;
           break;
         }
