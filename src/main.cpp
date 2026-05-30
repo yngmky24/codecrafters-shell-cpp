@@ -59,7 +59,7 @@ int main() {
           }
         }
         if (!is_builtin) {
-          std::cout << commandToFind << ": not found" << std::endl;
+          std::cerr << commandToFind << ": not found" << std::endl;
         }
       }
     }
@@ -105,7 +105,7 @@ int main() {
 
       // If the given command is non-executable return default message.
       if (!is_executable) {
-        std::cout << line << ": command not found" << std::endl;
+        std::cerr << line << ": command not found" << std::endl;
       }
     }
   }
