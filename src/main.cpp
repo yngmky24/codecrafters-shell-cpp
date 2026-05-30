@@ -72,7 +72,7 @@ int main() {
         std::filesystem::path fullPath = p / command;
         std::filesystem::perms permission {std::filesystem::status(fullPath).permissions()};
         if (std::filesystem::exists(fullPath) && (permission & std::filesystem::perms::group_exec) != std::filesystem::perms::none) {
-          std::cout << "Is an executable\n"; 
+          std::cout << fullPath.string() << std::endl; 
           // Pass any arguments from the command line
           std::string word {};
           std::stringstream ss_args {fullPath};
