@@ -70,16 +70,21 @@ int main() {
     else if (command == "cd") {
       std::string destPath {};
       ss >> destPath;
-      fs::path p {destPath};
-      // If directory exists, change to that directory
-      if (fs::exists(p)) {
-        fs::current_path(p);
+      if (destPath == "~") {
+        std::string homeDir {getenv("HOME")};
+        fs::current_path(homeDir);
       }
       else {
-        // If the directory doesn't exist
-        std::cerr << "cd: " << destPath << ": No such file or directory" << std::endl;
+        fs::path p {destPath};
+        // If directory exists, change to that directory
+        if (fs::exists(p)) {
+          fs::current_path(p);
+        }
+        else {
+          // If the directory doesn't exist
+          std::cerr << "cd: " << destPath << ": No such file or directory" << std::endl;
+        }
       }
-      
     }
     else {
       bool is_executable {false};
