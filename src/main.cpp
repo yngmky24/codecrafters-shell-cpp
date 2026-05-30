@@ -75,9 +75,11 @@ int main() {
           // Pass any arguments from the command line
           std::stringstream fullPathArgs {};
           fullPathArgs << p.string() << '/' << ss.str();
+          std::cout << fullPathArgs.str() << std::endl;
           // Execute the command
           const char* commandToExecute = fullPath.c_str();
-          std::system(commandToExecute);
+          std::cout << commandToExecute << std::endl;
+          // std::system(commandToExecute);
           is_executable = true;
           break;
         }
