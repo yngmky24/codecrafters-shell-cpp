@@ -73,12 +73,11 @@ int main() {
         std::filesystem::perms permission {std::filesystem::status(fullPath).permissions()};
         if (std::filesystem::exists(fullPath) && (permission & std::filesystem::perms::group_exec) != std::filesystem::perms::none) {
           // Pass any arguments from the command line
-          std::stringstream fullPathArgs {};
-          fullPathArgs << p.string() << '/' << ss.str();
-          std::cout << fullPathArgs.str() << std::endl;
+          std::filesystem::path fullPathArgs {p / ss.str()};          
+          std::cout << fullPathArgs.string() << std::endl;
+          return;
           // Execute the command
-          const char* commandToExecute = fullPath.c_str();
-          std::cout << commandToExecute << std::endl;
+          const char* commandToExecute = fullPathArgs.c_str();          
           // std::system(commandToExecute);
           is_executable = true;
           break;
