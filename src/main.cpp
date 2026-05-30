@@ -65,7 +65,7 @@ int main() {
     }
     else if (command == "pwd") {
       // Print working directory
-      std::cout << fs::current_path() << std::endl;
+      std::cout << fs::current_path().string() << std::endl;
     }
     else {
       bool is_executable {false};
