@@ -4,11 +4,15 @@
 #include <cstdlib>
 #include <sstream>
 #include <filesystem>
+namespace fs = std::filesystem;
 
 int main() {
   // Flush after every std::cout / std:cerr
   std::cout << std::unitbuf;
   std::cerr << std::unitbuf;
+
+  // List of builtin commands
+  const std::string builtin[4] {"echo", "exit", "type", "pwd"};
 
   // Initialize an object to hold user inputs.
   std::string line {};
@@ -31,8 +35,6 @@ int main() {
     }
     else if (command == "type") {
       bool is_builtin = false;
-      // List of builtin commands
-      std::string builtin[3] {"echo", "exit", "type"};
       std::string commandToFind;
       ss >> commandToFind;
       for(int index = 0; index < builtin->length(); index++) {
@@ -47,10 +49,10 @@ int main() {
         std::stringstream ss_path(path_env);
         std::string path;
         while(std::getline(ss_path, path, ':')) {
-          std::filesystem::path p{path};
-          std::filesystem::path fullPath = p / commandToFind;
-          std::filesystem::perms permission {std::filesystem::status(fullPath).permissions()};
-          if(std::filesystem::exists(fullPath) && (permission & std::filesystem::perms::group_exec) != std::filesystem::perms::none) {
+          fs::path p{path};
+          fs::path fullPath = p / commandToFind;
+          fs::perms permission {fs::status(fullPath).permissions()};
+          if(fs::exists(fullPath) && (permission & fs::perms::group_exec) != fs::perms::none) {
             std::cout << commandToFind << " is " << fullPath.string() << std::endl;
             is_builtin = true;
             break;
@@ -61,6 +63,10 @@ int main() {
         }
       }
     }
+    else if (command == "pwd") {
+      // Print working directory
+      std::cout << fs::current_path() << std::endl;
+    }
     else {
       bool is_executable {false};
       // Determine if the given command is an executable
@@ -68,12 +74,12 @@ int main() {
       std::stringstream ss_path(path_env);
       std::string path;
       while(std::getline(ss_path, path, ':')) {
-        std::filesystem::path p {path};
-        std::filesystem::path fullPath {p / command};
-        std::filesystem::perms permission {std::filesystem::status(fullPath).permissions()};
-        if (std::filesystem::exists(fullPath) && (permission & std::filesystem::perms::group_exec) != std::filesystem::perms::none) {
+        fs::path p {path};
+        fs::path fullPath {p / command};
+        fs::perms permission {fs::status(fullPath).permissions()};
+        if (fs::exists(fullPath) && (permission & fs::perms::group_exec) != fs::perms::none) {
           // Pass any arguments from the command line
-          std::filesystem::path commandArgs {ss.str()};
+          fs::path commandArgs {ss.str()};
           // Execute the command
           const char* commandToExecute {commandArgs.c_str()};
           std::system(commandToExecute);
