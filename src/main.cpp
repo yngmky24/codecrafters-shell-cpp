@@ -1,6 +1,6 @@
 #include <iostream>
 #include <string>
-#include <vector>
+#include <array>
 #include <cstdlib>
 #include <sstream>
 #include <filesystem>
@@ -12,7 +12,7 @@ int main() {
   std::cerr << std::unitbuf;
 
   // List of builtin commands
-  const std::string builtin[4] {"echo", "exit", "type", "pwd"};
+  const std::array<std::string, 5> builtin {"echo", "exit", "type", "pwd", "cd"};
 
   // Initialize an object to hold user inputs.
   std::string line {};
@@ -37,7 +37,7 @@ int main() {
       bool is_builtin = false;
       std::string commandToFind;
       ss >> commandToFind;
-      for(int index = 0; index < builtin->length(); index++) {
+      for(int index = 0; index < builtin.size(); index++) {
         if (commandToFind == builtin[index]) {
           std::cout << builtin[index] << " is a shell builtin" << std::endl;
           is_builtin = true;
@@ -66,6 +66,21 @@ int main() {
     else if (command == "pwd") {
       // Print working directory
       std::cout << fs::current_path().string() << std::endl;
+    }
+    else if (command == "cd") {
+      std::string destPath {};
+      ss >> destPath;
+      fs::path p {destPath};      
+      // Handle absolute paths            
+      // If directory exists, change to that directory
+      if (fs::exists(p)) {
+        fs::current_path(p);
+      }
+      else {
+        // If the directory doesn't exist
+        std::cerr << "cd: " << destPath << ": No such file or directory" << std::endl;
+      }
+      
     }
     else {
       bool is_executable {false};
