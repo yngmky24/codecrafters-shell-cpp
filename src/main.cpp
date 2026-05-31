@@ -42,9 +42,38 @@ public:
 };
 
 class Type : public Command {
+private:
+  // List of builtin commands
+  const std::array<std::string, 5> builtin {"echo", "exit", "type", "pwd", "cd"};
 public:
   void execute(const std::vector<std::string>& args) override {
-
+    bool is_builtin = false;
+    std::string commandToFind {args[1]};
+    for(size_t index = 0; index < builtin.size(); index++) {
+      if (commandToFind == builtin[index]) {
+        std::cout << builtin[index] << " is a shell builtin" << std::endl;
+        is_builtin = true;
+        break;
+      }
+    }
+    if (!is_builtin) {
+      std::string path_env = std::getenv("PATH");
+      std::stringstream ss_path(path_env);
+      std::string path;
+      while(std::getline(ss_path, path, ':')) {
+        fs::path p{path};
+        fs::path fullPath = p / commandToFind;
+        fs::perms permission {fs::status(fullPath).permissions()};
+        if(fs::exists(fullPath) && (permission & fs::perms::group_exec) != fs::perms::none) {
+          std::cout << commandToFind << " is " << fullPath.string() << std::endl;
+          is_builtin = true;
+          break;
+        }
+      }
+      if (!is_builtin) {
+        std::cerr << commandToFind << ": not found" << std::endl;
+      }
+    }
   }
 };
 
@@ -119,17 +148,10 @@ public:
   }
 };
 
-class Executor {
-
-};
-
 int main() {
   // Flush after every std::cout / std:cerr
   std::cout << std::unitbuf;
   std::cerr << std::unitbuf;
-
-  // List of builtin commands
-  const std::array<std::string, 5> builtin {"echo", "exit", "type", "pwd", "cd"};
 
   std::string line {};
   std::string command {};
@@ -147,10 +169,9 @@ int main() {
 
     // Get the parsed tokens
     std::vector<std::string> tokens = parser.parseLine(line);
-
     if (tokens.empty()) continue;
-  
     command = tokens[0];
+
     if (command == "exit") {
       Exit exitCmd;
       exitCmd.execute(tokens);
@@ -160,34 +181,8 @@ int main() {
       echoCmd.execute(tokens);
     }
     else if (command == "type") {
-      bool is_builtin = false;
-      std::string commandToFind;
-      ss >> commandToFind;
-      for(int index = 0; index < builtin.size(); index++) {
-        if (commandToFind == builtin[index]) {
-          std::cout << builtin[index] << " is a shell builtin" << std::endl;
-          is_builtin = true;
-          break;
-        }
-      }
-      if (!is_builtin) {
-        std::string path_env = std::getenv("PATH");
-        std::stringstream ss_path(path_env);
-        std::string path;
-        while(std::getline(ss_path, path, ':')) {
-          fs::path p{path};
-          fs::path fullPath = p / commandToFind;
-          fs::perms permission {fs::status(fullPath).permissions()};
-          if(fs::exists(fullPath) && (permission & fs::perms::group_exec) != fs::perms::none) {
-            std::cout << commandToFind << " is " << fullPath.string() << std::endl;
-            is_builtin = true;
-            break;
-          }
-        }
-        if (!is_builtin) {
-          std::cerr << commandToFind << ": not found" << std::endl;
-        }
-      }
+      Type typeCmd;
+      typeCmd.execute(tokens);
     }
     else if (command == "pwd") {
       // Print working directory
