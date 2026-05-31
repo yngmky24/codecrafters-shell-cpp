@@ -5,6 +5,8 @@
 #include <cstdlib>
 #include <sstream>
 #include <filesystem>
+#include <unordered_map>
+#include <memory>
 namespace fs = std::filesystem;
 
 enum class ParseState {
@@ -144,13 +146,6 @@ public:
   }
 };
 
-class Shell {
-private:
-  const std::string PATH = "PATH";
-public:
-  ParseState state = ParseState::Normal;
-};
-
 class Parser {
 public:
   std::vector<std::string> parseLine(const std::string& line) {
@@ -201,49 +196,54 @@ public:
   }
 };
 
+class Shell {
+private:
+  const std::string PATH = "PATH";
+  const std::string HOME = "HOME";
+  Parser parser;
+  std::unordered_map<std::string, std::unique_ptr<Command>> builtins {};
+
+public:
+  Shell() {
+    builtins["exit"] = std::make_unique<Exit>();
+    builtins["echo"] = std::make_unique<Echo>();
+    builtins["type"] = std::make_unique<Type>();
+    builtins["pwd"]  = std::make_unique<Pwd>();
+    builtins["cd"]   = std::make_unique<Cd>();
+  }
+
+  void run() {
+    std::string line {};
+    std::string command {};
+    // Loop infinitely until user calls `exit` command.
+    while(1) {
+      std::cout << "$ ";
+      std::getline(std::cin, line);
+    
+      // Get the parsed tokens
+      std::vector<std::string> tokens = parser.parseLine(line);
+      if (tokens.empty()) continue;
+      command = tokens[0];
+    
+      if(builtins.find(command) != builtins.end()) {
+        builtins[command]->execute(tokens);
+      }
+      else {
+        Undefined undefinedCmd;
+        undefinedCmd.execute(tokens);
+      }
+    }
+  }
+};
+
+
 int main() {
   // Flush after every std::cout / std:cerr
   std::cout << std::unitbuf;
   std::cerr << std::unitbuf;
 
-  std::string line {};
-  std::string command {};
-  
-  // Instantiate parser
-  Parser parser {};
-  // Loop infinitely until user calls `exit` command.
-  while(1) {
-    std::cout << "$ ";
-    std::getline(std::cin, line);
+  Shell myShell;
+  myShell.run();
 
-    // Get the parsed tokens
-    std::vector<std::string> tokens = parser.parseLine(line);
-    if (tokens.empty()) continue;
-    command = tokens[0];
-
-    if (command == "exit") {
-      Exit exitCmd;
-      exitCmd.execute(tokens);
-    }
-    else if (command == "echo") {      
-      Echo echoCmd;
-      echoCmd.execute(tokens);
-    }
-    else if (command == "type") {
-      Type typeCmd;
-      typeCmd.execute(tokens);
-    }
-    else if (command == "pwd") {
-      Pwd pwdCmd;
-      pwdCmd.execute(tokens);
-    }
-    else if (command == "cd") {
-      Cd cdCmd;
-      cdCmd.execute(tokens);
-    }
-    else {
-      Undefined undefinedCmd;
-      undefinedCmd.execute(tokens);
-    }
-  }
+  return 0;
 }
