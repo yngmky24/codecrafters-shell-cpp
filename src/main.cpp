@@ -8,6 +8,7 @@ namespace fs = std::filesystem;
 
 enum class parseState {
   normal,
+  normalAfterSpace,
   inSingleQuote
 };
 
@@ -50,7 +51,19 @@ int main() {
           ss_word << c;
         }
         else if (state==parseState::normal) {
-          std::cout << c;          
+          if (c == ' ') {
+            state = parseState::normalAfterSpace;
+            std::cout << ' ';
+          }
+          else {            
+            std::cout << c;          
+          }
+        }
+        else if (state==parseState::normalAfterSpace) {
+          if (c != ' ') {
+            state = parseState::normal;
+            std::cout << c;
+          }
         }
       }
       std::cout << std::endl;
