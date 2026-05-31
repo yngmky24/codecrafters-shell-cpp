@@ -85,9 +85,12 @@ public:
   }
 };
 
-class PathExecution {
+class Cd : public Command {
 public:
-  void execute(const std::string destPath, const std::string errorMsg) {
+  void execute(const std::vector<std::string>& args) override {
+    std::string destPath {args[1]};
+    std::string errorMsg {"cd: " + destPath + ": No such file or directory"};
+
     if (destPath == "~") {
       std::string homeDir {getenv("HOME")};
       fs::current_path(homeDir);
@@ -103,19 +106,6 @@ public:
         std::cerr << errorMsg << std::endl;
       }
     }
-  }
-
-  // PathExecution::PathExecution(const std::string destPath, const std::string errorMsg) {
-  //   execute(destPath, errorMsg);
-  // }
-};
-
-class Cd : public Command , public PathExecution {
-public:
-  void execute(const std::vector<std::string>& args) override {
-    std::string destPath {args[1]};
-    std::string errMsg {"cd: " + destPath + ": No such file or directory"};
-    PathExecution::execute(destPath, errMsg);
   }
 };
 
@@ -154,6 +144,7 @@ public:
     }
   }
 };
+
 class Shell {
 private:
   const std::string PATH = "PATH";
