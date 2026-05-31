@@ -226,7 +226,7 @@ int main() {
           // Pass any arguments from the command line
           std::string args {};
           std::getline(ss, args);         
-          std::string commandToExecute {fullPath.string() + " " + args};
+          std::string commandToExecute {command + " " + args};
           // Execute the command          
           std::system(commandToExecute.c_str());
           is_executable = true;
