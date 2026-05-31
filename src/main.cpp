@@ -79,15 +79,31 @@ public:
 
 class Pwd : public Command {
 public:
-  void execute(const std::vector<std::string>& args) override {
-
+  void execute(const std::vector<std::string>& args) override {          
+    // Print working directory
+    std::cout << fs::current_path().string() << std::endl;
   }
 };
 
 class Cd : public Command {
 public:
   void execute(const std::vector<std::string>& args) override {
-
+    std::string destPath {args[1]};
+    if (destPath == "~") {
+      std::string homeDir {getenv("HOME")};
+      fs::current_path(homeDir);
+    }
+    else {
+      fs::path p {destPath};
+      // If directory exists, change to that directory
+      if (fs::exists(p)) {
+        fs::current_path(p);
+      }
+      else {
+        // If the directory doesn't exist
+        std::cerr << "cd: " << destPath << ": No such file or directory" << std::endl;
+      }
+    }
   }
 };
 
@@ -185,8 +201,8 @@ int main() {
       typeCmd.execute(tokens);
     }
     else if (command == "pwd") {
-      // Print working directory
-      std::cout << fs::current_path().string() << std::endl;
+      Pwd pwdCmd;
+      pwdCmd.execute(tokens);
     }
     else if (command == "cd") {
       std::string destPath {};
