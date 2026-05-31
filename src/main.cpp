@@ -115,8 +115,7 @@ public:
     std::string command {args[0]};
     std::string commandArgs {""};
     for (size_t i = 1; i < args.size(); i++) {
-      commandArgs += args[i];
-      commandArgs += " ";
+      commandArgs += "'" + args[i] + "' ";      
     }
 
     bool is_executable {false};
@@ -140,7 +139,7 @@ public:
 
     // If the given command is non-executable return default message.
     if (!is_executable) {
-      std::cerr << command << commandArgs << ": command not found" << std::endl;
+      std::cerr << command << ": command not found" << std::endl;
     }
   }
 };
