@@ -4,8 +4,12 @@
 #include <cstdlib>
 #include <sstream>
 #include <filesystem>
-#include <stack>
 namespace fs = std::filesystem;
+
+enum class parseState {
+  normal,
+  inSingleQuote
+};
 
 int main() {
   // Flush after every std::cout / std:cerr
@@ -24,27 +28,29 @@ int main() {
     std::getline(std::cin, line);
     std::stringstream ss {line};
     ss >> command;
+    ss >> std::ws; // consume whitespace after command
     if (command == "exit") {
       exit(0);
     }
-    else if (command == "echo") {
-      std::string word {};
-      std::stack<std::string> quotes {};
+    else if (command == "echo") {      
+      parseState state {parseState::normal};
+      char c {};
       std::stringstream ss_word {};
-      while(ss >> word) {
-        if (word == "\'" && quotes.empty()) { // Opening quote
-          quotes.push(word);
+      while(ss >> std::noskipws >> c) {
+        if (c == '\'' && state==parseState::normal) { // Opening quote
+          state = parseState::inSingleQuote;
         }
-        else if (word == "\'" && !quotes.empty()) { // Ending quote
-          quotes.pop();
-          std::cout << ss_word.str() << std::endl;
+        else if (c == '\'' && state==parseState::inSingleQuote) { // Ending quote          
+          state = parseState::normal;       
+          std::cout << ss_word.str();
+          ss_word.str(""); // empties the text
           ss_word.clear();
         }
-        else if (word != "\'" && !quotes.empty()) {
-          ss_word << word;
+        else if (state==parseState::inSingleQuote) { // Between single quotes
+          ss_word << c;
         }
-        else if (quotes.empty()) {
-          std::cout << word << " ";
+        else if (state==parseState::normal) {
+          std::cout << c;          
         }
       }
       std::cout << std::endl;
