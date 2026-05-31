@@ -6,10 +6,14 @@
 #include <filesystem>
 namespace fs = std::filesystem;
 
-enum class parseState {
-  normal,
-  normalAfterSpace,
-  inSingleQuote
+enum class ParseState {
+  Normal,
+  NormalAfterSpace,
+  InSingleQuote
+};
+
+class Command {
+
 };
 
 int main() {
@@ -34,34 +38,34 @@ int main() {
       exit(0);
     }
     else if (command == "echo") {      
-      parseState state {parseState::normal};
+      ParseState state {ParseState::Normal};
       char c {};
       std::stringstream ss_word {};
       while(ss >> std::noskipws >> c) {
-        if (c == '\'' && (state==parseState::normal || state==parseState::normalAfterSpace)) { // Opening quote
-          state = parseState::inSingleQuote;
+        if (c == '\'' && (state==ParseState::Normal || state==ParseState::NormalAfterSpace)) { // Opening quote
+          state = ParseState::InSingleQuote;
         }
-        else if (c == '\'' && state==parseState::inSingleQuote) { // Ending quote          
-          state = parseState::normal;       
+        else if (c == '\'' && state==ParseState::InSingleQuote) { // Ending quote          
+          state = ParseState::Normal;       
           std::cout << ss_word.str();
           ss_word.str(""); // empties the text
           ss_word.clear();
         }
-        else if (state==parseState::inSingleQuote) { // Between single quotes
+        else if (state==ParseState::InSingleQuote) { // Between single quotes
           ss_word << c;
         }
-        else if (state==parseState::normal) {
+        else if (state==ParseState::Normal) {
           if (c == ' ') {
-            state = parseState::normalAfterSpace;
+            state = ParseState::NormalAfterSpace;
             std::cout << ' ';
           }
           else {            
             std::cout << c;          
           }
         }
-        else if (state==parseState::normalAfterSpace) {
+        else if (state==ParseState::NormalAfterSpace) {
           if (c != ' ') {
-            state = parseState::normal;
+            state = ParseState::Normal;
             std::cout << c;
           }
         }
@@ -133,7 +137,10 @@ int main() {
         fs::perms permission {fs::status(fullPath).permissions()};
         if (fs::exists(fullPath) && (permission & fs::perms::group_exec) != fs::perms::none) {
           // Pass any arguments from the command line
-          fs::path commandArgs {ss.str()};
+          std::string fullPathArgs {fullPath.string()};
+          ss >> fullPathArgs;          
+          // fs::path commandArgs {ss.str()};
+          fs::path commandArgs {fullPathArgs};
           // Execute the command
           const char* commandToExecute {commandArgs.c_str()};
           std::system(commandToExecute);
