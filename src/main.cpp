@@ -38,7 +38,7 @@ int main() {
       char c {};
       std::stringstream ss_word {};
       while(ss >> std::noskipws >> c) {
-        if (c == '\'' && state==parseState::normal) { // Opening quote
+        if (c == '\'' && (state==parseState::normal || state==parseState::normalAfterSpace)) { // Opening quote
           state = parseState::inSingleQuote;
         }
         else if (c == '\'' && state==parseState::inSingleQuote) { // Ending quote          
