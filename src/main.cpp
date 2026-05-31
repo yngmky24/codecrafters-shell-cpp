@@ -85,10 +85,9 @@ public:
   }
 };
 
-class Cd : public Command {
+class PathExecution {
 public:
-  void execute(const std::vector<std::string>& args) override {
-    std::string destPath {args[1]};
+  void execute(const std::string destPath, const std::string errorMsg) {
     if (destPath == "~") {
       std::string homeDir {getenv("HOME")};
       fs::current_path(homeDir);
@@ -101,12 +100,60 @@ public:
       }
       else {
         // If the directory doesn't exist
-        std::cerr << "cd: " << destPath << ": No such file or directory" << std::endl;
+        std::cerr << errorMsg << std::endl;
       }
     }
   }
+
+  // PathExecution::PathExecution(const std::string destPath, const std::string errorMsg) {
+  //   execute(destPath, errorMsg);
+  // }
 };
 
+class Cd : public Command , public PathExecution {
+public:
+  void execute(const std::vector<std::string>& args) override {
+    std::string destPath {args[1]};
+    std::string errMsg {"cd: " + destPath + ": No such file or directory"};
+    PathExecution::execute(destPath, errMsg);
+  }
+};
+
+class Undefined : public Command {
+public:
+  void execute(const std::vector<std::string>& args) override {
+    std::string command {args[0]};
+    std::string commandArgs {""};
+    for (size_t i = 1; i < args.size(); i++) {
+      commandArgs += args[i];
+      commandArgs += " ";
+    }
+
+    bool is_executable {false};
+    // Determine if the given command is an executable
+    std::string path_env = std::getenv("PATH");
+    std::stringstream ss_path(path_env);
+    std::string path;
+    while(std::getline(ss_path, path, ':')) {
+      fs::path p {path};
+      fs::path fullPath {p / command};
+      fs::perms permission {fs::status(fullPath).permissions()};
+      if (fs::exists(fullPath) && (permission & fs::perms::group_exec) != fs::perms::none) {
+        // Pass any arguments from the command line     
+        std::string commandToExecute {command + " " + commandArgs};
+        // Execute the command          
+        std::system(commandToExecute.c_str());
+        is_executable = true;
+        break;
+      }
+    }
+
+    // If the given command is non-executable return default message.
+    if (!is_executable) {
+      std::cerr << command << commandArgs << ": command not found" << std::endl;
+    }
+  }
+};
 class Shell {
 private:
   const std::string PATH = "PATH";
@@ -179,10 +226,6 @@ int main() {
     std::cout << "$ ";
     std::getline(std::cin, line);
 
-    std::stringstream ss {line};
-    ss >> command;
-    ss >> std::ws; // consume whitespace after command
-
     // Get the parsed tokens
     std::vector<std::string> tokens = parser.parseLine(line);
     if (tokens.empty()) continue;
@@ -205,50 +248,12 @@ int main() {
       pwdCmd.execute(tokens);
     }
     else if (command == "cd") {
-      std::string destPath {};
-      ss >> destPath;
-      if (destPath == "~") {
-        std::string homeDir {getenv("HOME")};
-        fs::current_path(homeDir);
-      }
-      else {
-        fs::path p {destPath};
-        // If directory exists, change to that directory
-        if (fs::exists(p)) {
-          fs::current_path(p);
-        }
-        else {
-          // If the directory doesn't exist
-          std::cerr << "cd: " << destPath << ": No such file or directory" << std::endl;
-        }
-      }
+      Cd cdCmd;
+      cdCmd.execute(tokens);
     }
     else {
-      bool is_executable {false};
-      // Determine if the given command is an executable
-      std::string path_env = std::getenv("PATH");
-      std::stringstream ss_path(path_env);
-      std::string path;
-      while(std::getline(ss_path, path, ':')) {
-        fs::path p {path};
-        fs::path fullPath {p / command};
-        fs::perms permission {fs::status(fullPath).permissions()};
-        if (fs::exists(fullPath) && (permission & fs::perms::group_exec) != fs::perms::none) {
-          // Pass any arguments from the command line
-          std::string args {};
-          std::getline(ss, args);         
-          std::string commandToExecute {command + " " + args};
-          // Execute the command          
-          std::system(commandToExecute.c_str());
-          is_executable = true;
-          break;
-        }
-      }
-
-      // If the given command is non-executable return default message.
-      if (!is_executable) {
-        std::cerr << line << ": command not found" << std::endl;
-      }
+      Undefined undefinedCmd;
+      undefinedCmd.execute(tokens);
     }
   }
 }
