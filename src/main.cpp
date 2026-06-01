@@ -180,7 +180,10 @@ public:
         state = ParseState::Normal;
       }
       else if (state==ParseState::InDoubleQuote) {
-        currentToken+=c;
+        if (c == '\'') {
+          currentToken += '\\';
+        }
+        currentToken += c;        
       }
       else if (state==ParseState::Normal) {
         if (c == ' ') { // The end of a word
