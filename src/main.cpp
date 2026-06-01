@@ -12,7 +12,8 @@ namespace fs = std::filesystem;
 enum class ParseState {
   Normal,
   NormalAfterSpace,
-  InSingleQuote
+  InSingleQuote,
+  InDoubleQuote
 };
 
 class Command {
@@ -158,14 +159,28 @@ public:
     
     // Loop through all characters
     while(ss >> std::noskipws >> c) {
-      if (c == '\'' && (state==ParseState::Normal || state==ParseState::NormalAfterSpace)) { // Opening quote
+      if (c == '\'' && (state==ParseState::Normal || state==ParseState::NormalAfterSpace)) {
+        // Begin single quote
         state = ParseState::InSingleQuote;
       }
-      else if (c == '\'' && state==ParseState::InSingleQuote) { // Ending quote          
+      else if (c == '\'' && state==ParseState::InSingleQuote) { 
+        // End single quote          
         state = ParseState::Normal;       
       }
-      else if (state==ParseState::InSingleQuote) { // Between single quotes
+      else if (state==ParseState::InSingleQuote) { 
+        // Between single quotes
         currentToken += c;
+      }
+      else if (c == '\"' && (state==ParseState::Normal || state==ParseState::NormalAfterSpace)) {
+        // Begin double quote
+        state = ParseState::InDoubleQuote;
+      }
+      else if (c == '\"' && state==ParseState::InDoubleQuote) {
+        // End of double quote
+        state = ParseState::Normal;
+      }
+      else if (state==ParseState::InDoubleQuote) {
+        currentToken+=c;
       }
       else if (state==ParseState::Normal) {
         if (c == ' ') { // The end of a word
@@ -235,7 +250,6 @@ public:
     }
   }
 };
-
 
 int main() {
   // Flush after every std::cout / std:cerr
