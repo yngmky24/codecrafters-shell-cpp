@@ -3,6 +3,7 @@
 #include "../include/Command.hpp"
 #include <string>
 #include <unordered_map>
+#include <memory>
 
 class Shell {
 private:
