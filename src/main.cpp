@@ -1,6 +1,4 @@
 #include "../include/Shell.hpp"
-#include "../include/Parser.hpp"
-#include "../include/Builtins.hpp"
 #include <iostream>
 
 int main() {
