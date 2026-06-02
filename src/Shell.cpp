@@ -1,6 +1,7 @@
 #include "../include/Shell.hpp"
 #include "../include/Builtins.hpp"
 #include <iostream>
+#include <memory>
 
 Shell::Shell() {
   builtins["exit"] = std::make_unique<Exit>();
