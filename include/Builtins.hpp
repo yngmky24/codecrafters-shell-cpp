@@ -1,5 +1,6 @@
 #pragma once
 #include "Command.hpp"
+#include <array>
 
 class Exit : public Command {
 public:
