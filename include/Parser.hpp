@@ -7,7 +7,8 @@ enum class ParseState {
   // NormalAfterSpace,
   InSingleQuote,
   InDoubleQuote,
-  Escaped
+  EscapedNormal,
+  EscapedDouble
 };
 
 class Parser {

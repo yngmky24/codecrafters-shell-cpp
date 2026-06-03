@@ -72,7 +72,7 @@ std::vector<std::string> Parser::parseLine(const std::string& line) {
           }
         }
         else if (c == '\\') {
-          state = ParseState::Escaped;
+          state = ParseState::EscapedNormal;
         }
         else {
           currentToken += c;
@@ -90,13 +90,25 @@ std::vector<std::string> Parser::parseLine(const std::string& line) {
         if (c == '\"') {
           state = ParseState::Normal;
         }
+        else if (c == '\\') {
+          state = ParseState::EscapedDouble;
+        }
         else {
           currentToken += c;
         }
         break;
-      case ParseState::Escaped:
+      case ParseState::EscapedNormal:
         currentToken += c;
         state = ParseState::Normal;
+        break;
+      case ParseState::EscapedDouble:
+        // Only escapes ", \, $, `, and newline
+        const std::vector<char> specialChars {'"', '\\'};
+        for (const auto spChar : specialChars) {
+          if (c == spChar) {
+            currentToken +=c;
+          }
+        }
         break;
     }
   }
