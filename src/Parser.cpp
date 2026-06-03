@@ -107,6 +107,7 @@ std::vector<std::string> Parser::parseLine(const std::string& line) {
         for (const auto spChar : specialChars) {
           if (c == spChar) {
             currentToken +=c;
+            state = ParseState::InDoubleQuote;
           }
         }
         break;
