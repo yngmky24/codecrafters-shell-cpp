@@ -71,6 +71,9 @@ std::vector<std::string> Parser::parseLine(const std::string& line) {
             currentToken.clear();
           }
         }
+        else if (c == '\\') {
+          state = ParseState::Escaped;
+        }
         else {
           currentToken += c;
         }
@@ -90,6 +93,10 @@ std::vector<std::string> Parser::parseLine(const std::string& line) {
         else {
           currentToken += c;
         }
+        break;
+      case ParseState::Escaped:
+        currentToken += c;
+        state = ParseState::Normal;
         break;
     }
   }
