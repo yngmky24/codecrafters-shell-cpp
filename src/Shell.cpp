@@ -1,5 +1,7 @@
 #include "../include/Shell.hpp"
 #include "../include/Builtins.hpp"
+#include "../include/Operator.hpp"
+#include <cstddef>
 #include <iostream>
 
 Shell::Shell() {
@@ -22,7 +24,10 @@ void Shell::run() {
     std::vector<std::string> tokens = parser.parseLine(line);
     if (tokens.empty()) continue;
     command = tokens[0];
-  
+    
+    Operator op(tokens);
+
+    // Execute builtin command
     if(builtins.find(command) != builtins.end()) {
       builtins[command]->execute(tokens);
     }

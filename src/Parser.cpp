@@ -65,7 +65,7 @@ std::vector<std::string> Parser::parseLine(const std::string& line) {
         else if (c == '\"') {
           state = ParseState::InDoubleQuote;
         }
-        else if (c == ' ') {
+        else if (c == ' ' || c == '>' /*redirect operator*/) {
           if(!currentToken.empty()) {
             tokens.push_back(currentToken);
             currentToken.clear();
@@ -103,7 +103,7 @@ std::vector<std::string> Parser::parseLine(const std::string& line) {
         break;
       case ParseState::EscapedDouble:
         // Only escapes ", \, $, `, and newline
-        const std::vector<char> specialChars {'"', '\\'};
+        const std::vector<char> specialChars {'"', '\\', '$', '`', 'n'};
         for (const auto spChar : specialChars) {
           if (c == spChar) {
             currentToken +=c;
